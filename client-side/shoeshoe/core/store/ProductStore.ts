@@ -8,6 +8,7 @@ type ProductStoreAction = {
     loadProduct: () => Promise<void>
     updateProduct: (product: Product) => Promise<Product>
     deleteProduct: (id: string) => Promise<Product>
+    addProduct: (product: Product) => Promise<Product>
 }
 
 export const useProductStore = create<ProductStoreState & ProductStoreAction>((set, get) => (
@@ -26,6 +27,11 @@ export const useProductStore = create<ProductStoreState & ProductStoreAction>((s
             const deleted = await ProductService.deleteProduct(id);
             await get().loadProduct();
             return deleted;
+        },
+        addProduct: async (product: Product) => {
+            const newProduct = await ProductService.addProduct(product);
+            await get().loadProduct();
+            return newProduct;
         }
     }
 ))
@@ -34,6 +40,7 @@ type ProductService = {
     getProductById: (id: string) => Promise<Product>
     updateProduct: (product: Product) => Promise<Product>
     deleteProduct: (id: string) => Promise<Product>
+    addProduct: (product: Product) => Promise<Product>
 }
 export const ProductService: ProductService = {
     getProducts: async () => {
@@ -69,5 +76,17 @@ export const ProductService: ProductService = {
         if (res) {
             return await res.json();
         }
+    },
+    addProduct: async (product: Product) => {
+        const url = "https://localhost:7265/api/Shoe/CreateShoe";
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Set the Content-Type header to application/json
+            },
+            body: JSON.stringify(product),
+        }
+        )
+        return await res.json();
     }
 }
